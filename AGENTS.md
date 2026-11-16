@@ -113,6 +113,28 @@ Guidance for AI coding agents working in this repository.
 - Never rewrite published history: no `git push --force`, no `git reset --hard` on shared branches.
 - Do not push. The human reviews the diff and pushes.
 
+## Open questions
+
+Unresolved design questions. Do not implement these areas until each one is
+closed in the specification; propose options in a PR or issue, decisions land
+in the spec first.
+
+1. Balance floor scope: `balance >= $1` is right for client-facing accounts,
+   but technical accounts (clearing, the Stripe settlement account, the
+   external-world account) legitimately go negative in double-entry. The spec
+   must define which account kinds carry the floor.
+2. `accounts.balance` is a cache over append-only entries. It may change only
+   inside the same transaction as the entries it reflects, and the spec must
+   define a reconciliation check that the stored balance equals the sum of
+   that account's entries.
+3. `Idempotency-Key` scope and payload binding: keys are unique per client (or
+   per account), not globally, and the request body is part of the key's
+   identity — same key with a different body returns `422`, never the stored
+   response.
+4. Kafka message key for a posting: a posting touches two accounts, so
+   "key = account ID" is ambiguous. The spec must pick the event shape (e.g.,
+   one event per account leg) before the relay is implemented.
+
 ## Maintaining this file
 
 - Only stable project facts: architecture, commands, conventions, rules.
