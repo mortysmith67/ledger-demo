@@ -6,7 +6,7 @@ Guidance for AI coding agents working in this repository.
 
 - **Ledger** is a **Go** project.
 - Git repository initialized on the `main` branch.
-- Go module path: `github.com/deck/ledger` (change it in `go.mod` and update this line if the canonical path differs).
+- Go module path: `github.com/mortysmith67/ledger-demo` (matches the GitHub remote; change it in `go.mod` and update this line if the canonical path differs).
 - No source code or CI yet.
 
 ## Setup
