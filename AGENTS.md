@@ -111,7 +111,8 @@ Guidance for AI coding agents working in this repository.
 - One task = one branch = one PR. Small commits, each builds and passes tests.
 - Commit messages: Conventional Commits (`feat:`, `fix:`, `test:`, `refactor:`, `chore:`, `docs:`).
 - Never rewrite published history: no `git push --force`, no `git reset --hard` on shared branches.
-- Do not push. The human reviews the diff and pushes.
+- Commit and/or push only on the human's explicit command, never automatically.
+  After making requested changes, present the diff and wait.
 
 ## Open questions
 
