@@ -3,103 +3,130 @@
 <!--
 Usage:
 - Copy this file to `docs/specs/NNN-short-name.md` (sequential number, kebab-case).
-- Do not edit `_template.md` when writing a spec; edit your copy.
-- Remove sections that do not apply, and remove the HTML comments as you fill them in.
-- Keep implementation detail in code or migrations; the spec records intent and contracts.
+  Do not edit `_template.md` when writing a spec; edit your copy.
+- The human fills sections 1–8. The agent fills section 9 only after sections
+  1–8 pass review. Section 10 is written with section 6 and drives "are these
+  tests real?".
+- Remove the HTML comments as you fill sections in.
 -->
 
 - **Status:** Draft <!-- Draft | In review | Accepted | Implemented -->
 - **Author:** <name>
 - **Created:** <YYYY-MM-DD>
-- **Last updated:** <YYYY-MM-DD>
 
-## Summary
+## 1. Context & goal
 
-<!-- One paragraph: what is being specified and why it matters. A reader who
-knows nothing about the discussion should understand the outcome from here. -->
+<!-- Why this change at all: current behavior, the problem it solves, and why
+it is worth solving now. A reader who missed the discussion must understand
+the goal from this section alone. -->
 
-## Background
+## 2. Scope
 
-<!-- Current behavior, the problem being solved, and any constraints
-(invariants from AGENTS.md that apply, prior decisions, related specs). -->
+**In scope:**
 
-## Goals
+- <!-- What this spec delivers. -->
 
-- <!-- Outcome the spec must deliver. -->
+**Explicitly out of scope:**
 
-## Non-goals
+- <!-- The more important list: what this spec deliberately does NOT cover,
+  and where that concern lives instead (another spec, follow-up, never). -->
 
-- <!-- Explicitly out of scope, to bound the review. -->
+## 3. Contract
 
-## Requirements
+<!-- API endpoints and/or events. Everything a caller can observe. -->
 
-<!-- Use RFC 2119 wording: MUST / SHOULD / MAY. -->
+**Inputs:**
 
-- The system MUST …
-- The system SHOULD …
+<!-- Endpoints and request bodies; headers (`Idempotency-Key` is required on
+every write endpoint); Kafka topics, message key, and event payload shape
+(one event per account leg vs per posting — pick and justify). -->
 
-## Design
+**Outputs:**
 
-### Data model
+<!-- Response bodies, stored state, published events, status codes on success. -->
 
-<!-- New or changed tables: columns, types (`int64` minor units for money),
-NOT NULL, CHECK constraints, UNIQUE/partial-unique indexes. List the
-migration pairs (up/down) required; never edit an applied migration. -->
+**Error codes:**
 
-### API surface
+<!-- Sentinel errors from `internal/ledger` (e.g. `ErrCurrencyMismatch`,
+`ErrInsufficientFunds`) mapped to HTTP status via `errors.Is`. Never match
+error strings. Every error a caller can trigger is listed here. -->
 
-<!-- Endpoints, headers (e.g. `Idempotency-Key` on write endpoints),
-request/response bodies, and HTTP status mapping from sentinel errors via
-`errors.Is`. Never match error strings. -->
+## 4. Invariants
 
-### Invariants
+<!-- The most important section for a ledger. What must ALWAYS be true, under
+any failure: crashes between steps, retries, redeliveries, concurrent
+postings. If a code path can violate a statement below, the spec is wrong,
+not the code. Cover at least:
+- every posting is balanced: sum of debits == sum of credits;
+- amounts are int64 minor units; both legs match the account currency
+  (`ErrCurrencyMismatch`, never a silent cast);
+- append-only: corrections are new reversing entries, never UPDATE/DELETE;
+- `accounts.balance` is a cache over entries: it changes only in the same
+  transaction as the entries it reflects, and equals the sum of them;
+- which account kinds carry the balance floor, enforced in SQL;
+- at-least-once delivery + idempotency: a key produces at most one posting,
+  the key column and posting live in ONE transaction;
+- everything published to Kafka is written through the outbox first (no
+  dual-writes). -->
 
-<!-- What must always be true after every posting:
-- postings balanced: sum of debits == sum of credits;
-- both legs match the account currency (`ErrCurrencyMismatch` otherwise);
-- append-only ledger: corrections are new reversing entries, never UPDATE/DELETE;
-- which account kinds carry the balance floor (client-facing vs technical);
-- stored `accounts.balance` equals the sum of that account's entries. -->
+## 5. Edge cases & failures
 
-### Transactions and concurrency
+<!-- Walk through each class explicitly; state expected behavior for each:
+- duplicates: same webhook event id, same `Idempotency-Key`, replayed request;
+- concurrent requests: two postings on one account, deadlocks (locking order
+  is ascending account-ID), lock wait timeouts;
+- timeouts/crashes: process dies after commit but before response; after
+  publish but before marking the outbox row published;
+- invalid input: currency mismatch, non-positive amounts, unknown accounts,
+  malformed webhook signatures (reject before parsing);
+- event ordering: Stripe events arriving out of order — check current state
+  before transitioning, never trust payload amounts alone. -->
 
-<!-- Transaction boundaries (one Postgres transaction per posting), row locks
-(`SELECT ... FOR UPDATE` in ascending account-ID order), SQL-level enforcement
-of the floor, and what is decided inside vs outside the transaction. -->
+## 6. Acceptance criteria
 
-### Idempotency and delivery
+<!-- Verifiable statements, Given/When/Then. Rule: one criterion = one test.
+If a criterion cannot map to a single test, split it. Number them. -->
 
-<!-- Delivery is at-least-once everywhere. Where the idempotency key lives
-(column, partial unique index, same transaction as the posting), what happens
-on conflict, and how redelivered events are deduplicated. -->
+- **AC1.** Given <state>, when <action>, then <observable outcome>.
 
-### Events and outbox
+## 7. Non-functional
 
-<!-- Outbox row inserted in the same transaction as the posting; relay batch
-behavior; Kafka message key and event shape (one event per account leg vs per
-posting) with rationale; ordering guarantees. -->
+<!-- Fill ONLY what is relevant to this change; delete the rest.
+- Logging: slog JSON, `err` field on error logs, never keys/tokens/PII.
+- Metrics: what to count, what to alert on.
+- Security: signature verification, secrets from env only, test-mode keys.
+- Performance: latency/throughput budgets if this change moves money. -->
 
-### Errors and logging
+## 8. Decisions & open questions
 
-<!-- New sentinel errors in `internal/ledger`; slog fields (always include
-`err` for error logs). Never log keys, tokens, or PII. -->
+**Decided:**
 
-## Testing plan
+- <!-- Decision and why. Link to an ADR if one exists. -->
 
-<!-- Unit tests (no Docker) and integration tests (`-tags=integration`);
-invariant coverage; race behavior; Stripe webhook flow via httptest fake. -->
+**Open questions** <!-- each must be closed (recorded in Decided) before
+implementation starts; propose options with trade-offs -->
 
-## Open questions
+1. **<Question>:** Options: (a) …; (b) ….
 
-<!-- Unresolved design questions. Each MUST be closed (decision recorded in
-Decisions below) before implementation lands. Propose options with trade-offs. -->
+## 9. Implementation plan
 
-1. **<Question>:** <why it is blocking>. Options: (a) …; (b) ….
+<!-- Filled by the agent AFTER the human reviews and approves sections 1–8.
+Ordered steps, each shippable with a diff of ≤150 lines: migrations first,
+then `internal/ledger` (domain compiles with fakes only, no adapter
+imports), then `internal/storage`, then adapters. Each step states which
+acceptance criteria it makes pass. -->
 
-## Decisions
+1. [ ] <Step> — makes AC… pass (diff ≈ N lines).
 
-<!-- Decisions land here first, then in code. Append-only: never delete a row. -->
+## 10. Verification
 
-| # | Date | Decision | Rationale |
-|---|------|----------|-----------|
-| 1 | <YYYY-MM-DD> | <decision> | <why> |
+<!-- How you will convince yourself the tests are REAL and not tautologies:
+for each key acceptance criterion, name the exact line/behavior to break so
+the test fails. If breaking it does not fail a test, the criterion has no
+test. Examples: drop `FOR UPDATE` from the locking query; invert the floor
+condition `balance >= $1`; drop `ON CONFLICT DO NOTHING`; publish to Kafka
+without the outbox row. Pair this with section 6 during review. -->
+
+| Criterion | What to break | Expected failure |
+|-----------|---------------|------------------|
+| AC1 | <line/query/guard to break> | <test name fails> |
