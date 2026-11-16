@@ -105,6 +105,7 @@ Guidance for AI coding agents working in this repository.
 ## Git workflow
 
 - Never commit to `main`. Before any change, create a branch: `feat/<short-name>`, `fix/<short-name>`, `chore/<short-name>`.
+- Before starting new work, sync `main` (pull) and start new branches from it.
 - One task = one branch = one PR. Small commits, each builds and passes tests.
 - Commit messages: Conventional Commits (`feat:`, `fix:`, `test:`, `refactor:`, `chore:`, `docs:`).
 - Never rewrite published history: no `git push --force`, no `git reset --hard` on shared branches.
