@@ -112,7 +112,7 @@ Guidance for AI coding agents working in this repository.
 - Commit messages: Conventional Commits (`feat:`, `fix:`, `test:`, `refactor:`, `chore:`, `docs:`).
 - Never rewrite published history: no `git push --force`, no `git reset --hard` on shared branches.
 - Commit and/or push only on the human's explicit command, never automatically.
-  After making requested changes, present the diff and wait.
+  Never push to `main`. After making requested changes, present the diff and wait.
 
 ## Open questions
 
