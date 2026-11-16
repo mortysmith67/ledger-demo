@@ -106,6 +106,8 @@ Guidance for AI coding agents working in this repository.
 
 - Never commit to `main`. Before any change, create a branch: `feat/<short-name>`, `fix/<short-name>`, `chore/<short-name>`.
 - Before starting new work, sync `main` (pull) and start new branches from it.
+- Before pushing to a branch, check its PR is still open (`gh pr list --head <branch>`): commits pushed to an already-merged branch never reach `main` — re-apply them on a fresh branch from synced `main`.
+- GitHub auto-deletes merged branches. After a merge: `git fetch --prune`, then `git branch -d <name>` locally. If `-d` fails, the branch has unmerged work — investigate instead of forcing.
 - One task = one branch = one PR. Small commits, each builds and passes tests.
 - Commit messages: Conventional Commits (`feat:`, `fix:`, `test:`, `refactor:`, `chore:`, `docs:`).
 - Never rewrite published history: no `git push --force`, no `git reset --hard` on shared branches.
