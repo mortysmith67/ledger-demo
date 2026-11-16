@@ -2,17 +2,6 @@
 
 Guidance for AI coding agents working in this repository.
 
-## Status
-
-- **Ledger** is a **Go** project.
-- Git repository initialized on the `main` branch.
-- Go module path: `github.com/mortysmith67/ledger-demo` (matches the GitHub remote; change it in `go.mod` and update this line if the canonical path differs).
-- No source code or CI yet.
-
-## Setup
-
-- **The Go toolchain is not installed in this environment** — all `go` commands fail until it is installed. Install Go (≥1.25) and verify with `go version`.
-
 ## Commands
 
 - Build: `go build ./...`
@@ -25,3 +14,9 @@ Guidance for AI coding agents working in this repository.
 
 - Keep tests beside the code they cover in `_test.go` files.
 - When adding tooling (Makefile, lint config, CI), update this file so the commands stay accurate.
+
+## Maintaining this file
+
+- Only stable project facts: architecture, commands, conventions, rules.
+- Never add machine-specific state (installed tools, local paths, OS, "not set up yet").
+- Keep it under 100 lines; if a section grows, move it to docs/ and link it.
