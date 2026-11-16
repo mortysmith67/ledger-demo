@@ -4,9 +4,12 @@
 Usage:
 - Copy this file to `docs/specs/NNN-short-name.md` (sequential number, kebab-case).
   Do not edit `_template.md` when writing a spec; edit your copy.
-- The human fills sections 1–8. The agent fills section 9 only after sections
-  1–8 pass review. Section 10 is written with section 6 and drives "are these
-  tests real?".
+- The human decides sections 1–8 (the agent may draft from the human's
+  answers). The agent fills section 9 only after sections 1–8 pass review.
+  Section 10 is written with section 6 and drives "are these tests real?".
+- If the spec exceeds ~2 pages, split the task.
+- AGENTS.md is the single source of truth for project rules; this template
+  references them, never restates them.
 - Remove the HTML comments as you fill sections in.
 -->
 
@@ -56,18 +59,16 @@ error strings. Every error a caller can trigger is listed here. -->
 <!-- The most important section for a ledger. What must ALWAYS be true, under
 any failure: crashes between steps, retries, redeliveries, concurrent
 postings. If a code path can violate a statement below, the spec is wrong,
-not the code. Cover at least:
-- every posting is balanced: sum of debits == sum of credits;
-- amounts are int64 minor units; both legs match the account currency
-  (`ErrCurrencyMismatch`, never a silent cast);
-- append-only: corrections are new reversing entries, never UPDATE/DELETE;
-- `accounts.balance` is a cache over entries: it changes only in the same
-  transaction as the entries it reflects, and equals the sum of them;
-- which account kinds carry the balance floor, enforced in SQL;
-- at-least-once delivery + idempotency: a key produces at most one posting,
-  the key column and posting live in ONE transaction;
-- everything published to Kafka is written through the outbox first (no
-  dual-writes). -->
+not the code.
+
+Check every rule in AGENTS.md → Money, Transactions and concurrency,
+Idempotency, Webhooks, Outbox → Kafka — and do not restate them here;
+AGENTS.md stays the single source of truth. List only invariants specific to
+this change:
+- new guarantees this change introduces;
+- existing invariants it touches (tightens, relaxes, or reinterprets — e.g.
+  the balance-floor scope for a new account kind);
+- which section of AGENTS.md each touched rule points to. -->
 
 ## 5. Edge cases & failures
 
