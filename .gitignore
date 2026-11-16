@@ -1,0 +1,12 @@
+# Binaries and build output
+/bin/
+/dist/
+*.exe
+*.test
+
+# Test coverage
+coverage.out
+coverage.html
+
+# Editor/OS noise
+.DS_Store
