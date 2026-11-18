@@ -8,9 +8,9 @@ Write a spec for the task: **$ARGUMENTS**
 If the argument is empty — first ask the human what the spec is for.
 Never invent the subject of the spec yourself.
 
-The spec author is the commit author, injected when the command is invoked:
+The spec author is the commit author, obtained from git:
 
-Author: !`git config user.name`
+Author: Run `git config user.name` to get the author; if empty, ask
 
 ## Preparation
 
@@ -29,9 +29,8 @@ Author: !`git config user.name`
 - Take the substance of each question from the HTML comments of the matching
   template section.
 - Start with the header: Status: Draft, Created: today's date. Author is
-  already substituted above from the commit author — do not ask; if the value
+  obtained above from the commit author — do not ask; if the value
   is empty, ask for the name in one question.
-- Remove a section's HTML comment as soon as the section is filled in.
 
 Handling answers:
 
@@ -67,9 +66,10 @@ Also:
 
 1. Show the complete draft of the future file (no HTML comments; section 9
    stays as the template placeholder) and wait for the human's reaction.
-2. Write the file `docs/specs/NNN-<name>.md` **only if the human explicitly
-   wrote the trigger — «записуй» or "write it"**. Discussion or edits of the
-   draft are not consent.
-3. Do not fill in section 9 (Implementation plan) and write no code. It is
+2. Create or modify only `docs/specs/NNN-<name>.md` file **only if the human explicitly
+   wrote the trigger — "write it"**. Discussion or edits of the
+   draft are not consent. Touch no other file.
+3. Do not fill in section 9 (Implementation plan). It is
    filled in a separate step after the human reviews and approves sections
    1–8.
+4. Show the complete draft without HTML comments
