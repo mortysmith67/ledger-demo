@@ -72,4 +72,3 @@ Also:
 3. Do not fill in section 9 (Implementation plan). It is
    filled in a separate step after the human reviews and approves sections
    1–8.
-4. Show the complete draft without HTML comments
