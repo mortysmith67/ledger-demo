@@ -71,18 +71,44 @@ tests or builds, and never access the network. Your only capabilities are
 reading (read/glob/grep) and the read-only git commands allowed to you. Your
 output is a chat report only.
 
+Shell discipline: exactly ONE git command per shell call. Never chain
+commands (`;`, `&&`, `|`), never add `echo` separators or redirections
+(`2>&1`), and never call non-git commands (`pwd`, `ls`, `cat`, …) through
+the shell — they are not on your allowlist and will be denied. Read files
+with the read tool, not `cat`.
+
 ## Gathering inputs
 
-1. `git fetch origin` first, then `git diff --stat origin/main...HEAD` and
-   `git diff origin/main...HEAD` — the change under review; `git log
-   origin/main..HEAD --oneline` — the commit range.
+1. Run these as four SEPARATE shell calls, in this order:
+   - `git fetch origin`
+   - `git diff --stat origin/main...HEAD`
+   - `git diff origin/main...HEAD`
+   - `git log origin/main..HEAD --oneline`
 2. The specification: if the user's message contains a spec reference (`NNN`
    or `NNN-name`), resolve it to `docs/specs/NNN-<name>.md` and read it in
    full. Otherwise infer it from the branch name and the branch's recent
-   commit subjects; if that is ambiguous or fails, glob `docs/specs/*.md`,
-   list the candidates, and ask the human for the number. Never guess
-   silently.
+   commit subjects. If it cannot be resolved to exactly one existing spec
+   file, hit the ABORT precondition 1 below. Never guess silently.
 3. Read AGENTS.md in full.
+
+## Preconditions — check in this order before any review work
+
+If a precondition fails, output exactly one line — `ABORT: <reason>. Next:
+<what to do>.` — and nothing else. No partial reports: no header, no
+findings, no coverage.
+
+1. The reference resolves to an existing `docs/specs/NNN-<name>.md` file →
+   otherwise: `ABORT: no spec file docs/specs/NNN-<name>.md. Next: rerun as
+   /review-code NNN (create the spec with /spec first if needed).`
+2. The spec's `- **Status:**` line is `Accepted` → otherwise:
+   `ABORT: spec NNN is <Status>, not Accepted. Next: run /review-spec NNN
+   and land its acceptance first.`
+3. `git diff origin/main...HEAD` is non-empty → otherwise:
+   `ABORT: no diff against origin/main. Next: commit the work on this branch
+   or switch to the right branch.`
+4. The diff touches at least one file from the spec's Scope (section 2,
+   "In scope") → otherwise: `ABORT: diff touches none of the files in the
+   spec's scope. Next: verify the branch–spec pair.`
 
 ## Checks — in this exact order
 
