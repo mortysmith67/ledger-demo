@@ -1,67 +1,75 @@
 ---
-description: Написати специфікацію в docs/specs через інтерв'ю по секціях (за docs/specs/_template.md та AGENTS.md)
+description: Write a spec in docs/specs via a section-by-section interview (per docs/specs/_template.md and AGENTS.md)
 agent: build
 ---
 
-Напиши специфікацію для задачі: **$ARGUMENTS**
+Write a spec for the task: **$ARGUMENTS**
 
-Якщо аргумент порожній — спочатку запитай людину, для якої задачі специфікація.
-Ніколи не вигадуй предмет специфікації сам.
+If the argument is empty — first ask the human what the spec is for.
+Never invent the subject of the spec yourself.
 
-Автор специфікації — автор коміта, підставлений при виклику команди:
+The spec author is the commit author, injected when the command is invoked:
 
 Author: !`git config user.name`
 
-## Підготовка
+## Preparation
 
-1. Прочитай повністю `docs/specs/_template.md` та `AGENTS.md`. AGENTS.md — єдине
-   джерело правил проєкту: специфікація посилається на них, а не дублює.
-2. Визнач наступний номер: перелічи файли в `docs/specs/`, візьми максимальний
-   `NNN` + 1. `_template.md` не редагуй і не рахуй.
-3. Цільовий файл: `docs/specs/NNN-<name>.md` (name у kebab-case, від назви
-   задачі). Файл НЕ створюй до кроку «записуй».
+1. Read `docs/specs/_template.md` and `AGENTS.md` in full. AGENTS.md is the
+   single source of project rules: the spec references them, never duplicates
+   them.
+2. Determine the next number: list the files in `docs/specs/`, take the
+   highest `NNN` + 1. Do not edit or count `_template.md`.
+3. Target file: `docs/specs/NNN-<name>.md` (name in kebab-case, derived from
+   the task name). Do NOT create the file until the write trigger.
 
-## Інтерв'ю — секції 1–8
+## Interview — sections 1–8
 
-- Рухайся по порядку 1 → 8, **одне питання на повідомлення**; чекай відповіді,
-  переходячи до наступного.
-- Зміст питань бери з HTML-коментарів відповідної секції шаблону.
-- Почни з шапки: Status: Draft, Created: сьогоднішня дата. Author уже
-  підставлений вище з автора коміта — не питай; якщо значення порожнє,
-  упитай ім'я одним питанням.
-- Залізюй HTML-коментар секції одразу, як її заповнено.
+- Go in order 1 → 8, **one question per message**; wait for the answer before
+  moving on.
+- Take the substance of each question from the HTML comments of the matching
+  template section.
+- Start with the header: Status: Draft, Created: today's date. Author is
+  already substituted above from the commit author — do not ask; if the value
+  is empty, ask for the name in one question.
+- Remove a section's HTML comment as soon as the section is filled in.
 
-Робота з відповідями:
+Handling answers:
 
-- Розмита відповідь → перепитай, запропонувавши **2–3 варіанти з
-  компромісами** (плюси та мінуси кожного).
-- Ніколи не вигадуй відповідь за людину і не підмінюй її рішення своїм.
-- «Не знаю» → поясни варіанти, але рішення лишається за людиною.
+- A vague answer → re-ask, offering **2–3 options with trade-offs** (pros and
+  cons of each).
+- Never invent an answer on the human's behalf and never substitute your own
+  decision for theirs.
+- "I don't know" → explain the options, but the decision stays with the human.
 
-Що можна пропускати:
+What may be skipped:
 
-- **Секції 4 (Invariants), 5 (Edge cases), 6 (Acceptance criteria)** —
-  обов'язкові: їх не можна пропустити чи позначити N/A.
-- Інші (1–3, 7, 8) можуть бути N/A — але лише після явного підтвердження людини.
-- Секцію 10 (Verification) чернеткуй разом із секцією 6: один рядок на AC
-  (що зламати → який тест має впасти). AC нумеровані, один AC = один тест;
-  якщо критерій не мапиться в один тест — розбий його.
+- **Sections 4 (Invariants), 5 (Edge cases), 6 (Acceptance criteria)** are
+  mandatory: they cannot be skipped or marked N/A.
+- The others (1–3, 7, 8) may be N/A — but only after the human explicitly
+  confirms.
+- Draft section 10 (Verification) together with section 6: one row per AC
+  (what to break → which test must fail). ACs are numbered, one AC = one
+  test; if a criterion does not map to a single test, split it.
 
-Додатково:
+Also:
 
-- Якщо специфікація зачіпає відкриті питання з AGENTS.md (balance floor,
-  balance як кеш, скоуп `Idempotency-Key`, Kafka message key) — їх розв'язання
-  є частиною інтерв'ю; рішення фіксується в секції 8 (Decided).
-- У секції 8: вирішене — у Decided; невирішене — як open question з варіантами.
-  Open questions мають бути закриті до початку імплементації.
-- Якщо вже зрозуміло, що специфікація вийде за ~2 сторінки, — одразу запропонуй
-  розбити задачу на кілька специфікацій, не чекай кінця інтерв'ю.
+- If the spec touches the open questions from AGENTS.md (balance floor,
+  balance as a cache, `Idempotency-Key` scope, Kafka message key) — resolving
+  them is part of the interview; the decision is recorded in section 8
+  (Decided).
+- In section 8: settled items go to Decided; unsettled ones become open
+  questions with options. Open questions must be closed before implementation
+  starts.
+- If it is already clear the spec will exceed ~2 pages, propose splitting the
+  task into several specs right away — do not wait for the interview to end.
 
-## Завершення
+## Finishing
 
-1. Покажи повну чернетку майбутнього файлу (без HTML-коментарів; секція 9 —
-   плейсхолдер з шаблону) і дочекайся реакції людини.
-2. Записуй файл `docs/specs/NNN-<name>.md` **лише якщо людина явно написала
-   «записуй»**. Обговорення чи правки чернетки — не згода.
-3. Секцію 9 (Implementation plan) не заповнюй, код не пиши. Її заповнюють
-   окремим кроком після того, як людина перевірила і схвалила секції 1–8.
+1. Show the complete draft of the future file (no HTML comments; section 9
+   stays as the template placeholder) and wait for the human's reaction.
+2. Write the file `docs/specs/NNN-<name>.md` **only if the human explicitly
+   wrote the trigger — «записуй» or "write it"**. Discussion or edits of the
+   draft are not consent.
+3. Do not fill in section 9 (Implementation plan) and write no code. It is
+   filled in a separate step after the human reviews and approves sections
+   1–8.
