@@ -136,6 +136,12 @@ this spec moves no money and stores nothing.
   image reference in `Dockerfile`/`docker-compose.yml` without an exact
   `MAJOR.MINOR.PATCH` tag — including `latest` and floating tags such as
   `postgres:17` — fails the build (I5).
+- **AC9.** Given a request is in flight (a test-only slow handler that
+  takes 2 s), when the service receives SIGTERM, then that request
+  completes with `200` and the process exits `0`.
+- **AC10.** Given a request that outlives the shutdown deadline, when the
+  service receives SIGTERM, then the process exits `0` no later than the
+  deadline plus 1 s and logs a warning about forcibly closed connections.
 
 ## 7. Non-functional
 
@@ -178,6 +184,9 @@ this spec moves no money and stores nothing.
 - AC5 is verified at handler level; a compose-level "Postgres stopped" check
   is deferred to the storage spec, when the service first connects to
   Postgres.
+- The shutdown deadline is configurable so tests can use a short deadline
+  (e.g. 1 s); production default stays 10 s. The test-only slow handler is
+  registered only in tests.
 
 **Open questions:**
 
@@ -206,3 +215,5 @@ Not filled — completed as a separate step after sections 1–8 pass review.
 | AC6 | remove signal handling from `main`, or drop the 10 s deadline and wait indefinitely | `TestGracefulShutdown` fails |
 | AC7 | remove the readiness retry policy (single attempt) from the smoke job | CI compose smoke job fails |
 | AC8 | use `postgres:latest` or a floating `postgres:17` | CI pinning check fails |
+| AC9 | call `server.Close()` instead of `Shutdown()` | `TestShutdownDrainsInFlight` fails |
+| AC10 | remove the deadline context | `TestShutdownForcedAfterDeadline` fails |
