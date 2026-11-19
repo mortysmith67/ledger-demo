@@ -104,7 +104,10 @@ Guidance for AI coding agents working in this repository.
 
 ## Git workflow
 
-- Never commit to `main`. Before any change, create a branch: `feat/<short-name>`, `fix/<short-name>`, `chore/<short-name>`.
+- Never commit to `main`. Before any change, create a branch:
+  `feat/NNN-<short-name>` or `fix/NNN-<short-name>` for spec-backed work
+  (`NNN` = spec number); `chore/<short-name>` or `docs/<short-name>` for work
+  without a spec.
 - Before starting new work, sync `main` (pull) and start new branches from it.
 - Before pushing to a branch, check its PR is still open (`gh pr list --head <branch>`): commits pushed to an already-merged branch never reach `main` — re-apply them on a fresh branch from synced `main`.
 - GitHub auto-deletes merged branches. After a merge: `git fetch --prune`, then `git branch -d <name>` locally. If `-d` fails, the branch has unmerged work — investigate instead of forcing.
@@ -113,6 +116,12 @@ Guidance for AI coding agents working in this repository.
 - Never rewrite published history: no `git push --force`, no `git reset --hard` on shared branches.
 - Commit and/or push only on the human's explicit command, never automatically.
   Never push to `main`. After making requested changes, present the diff and wait.
+
+## Agent conduct
+
+- If a required input cannot be obtained (a tool is denied, a file is
+  missing), stop and report it. Never reconstruct the input through another
+  tool.
 
 ## Open questions
 
