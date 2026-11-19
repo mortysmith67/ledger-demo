@@ -45,6 +45,9 @@ starts, answers a health check, and runs locally via `docker compose up -d`.
 - Stripe, webhooks, domain (accounts/postings) → later specs.
 - Integration tests in CI → when integration tests exist (needs a Postgres
   service container then).
+- HTTP server read/write/idle timeouts → explicitly out of scope for this
+  spec: the only endpoint is liveness `healthz`; revisited with the first
+  real endpoints.
 
 ## 3. Contract
 
@@ -82,8 +85,9 @@ starts, answers a health check, and runs locally via `docker compose up -d`.
   exception to I3:** optional, default `8080`.
 - **I5 — Pinned images.** Every image in `Dockerfile` and
   `docker-compose.yml` (Go base image, Postgres) is pinned to an exact
-  version; the `latest` tag is forbidden. Exact tags are picked at
-  implementation and named in section 9.
+  version tag (`MAJOR.MINOR.PATCH`); floating tags (`postgres:17`) and
+  `latest` are forbidden. Exact tags are picked at implementation and named
+  in section 9.
 
 No AGENTS.md money/concurrency/idempotency/webhook/outbox rule is touched:
 this spec moves no money and stores nothing.
@@ -96,8 +100,11 @@ this spec moves no money and stores nothing.
 - **`PORT` unset** → default `8080` (I4).
 - **`PORT` malformed** (non-numeric or outside 1–65535) → startup aborts with
   an error naming `PORT` — never a silent default (decision A).
-- **SIGTERM / SIGINT** (`docker stop`, Ctrl+C) → graceful shutdown: stop
-  accepting connections, finish in-flight requests, exit `0` (decision B).
+- **SIGTERM / SIGINT** (`docker stop`, Ctrl+C) → graceful shutdown with a
+  **10 s deadline**: stop accepting connections, finish in-flight requests,
+  exit `0`; if the deadline expires, close remaining connections forcibly,
+  log a warning, and still exit `0` (decision B). The shutdown never waits
+  indefinitely.
 - **Duplicates / replays** — N/A: no writes, no consumers.
 - **Concurrent requests** — N/A: `healthz` is stateless and read-only.
 - **Postgres/Kafka unavailable** — not a failure mode here: no connections
@@ -108,7 +115,9 @@ this spec moves no money and stores nothing.
 
 - **AC1.** Given the service is running, when `GET /healthz`, then `200` with
   `Content-Type: application/json` and body
-  `{"status":"ok","time":"<RFC 3339 UTC>"}` (parsable, near current time).
+  `{"status":"ok","time":"<RFC 3339 UTC>"}`, where `time` parses as RFC 3339
+  UTC and is within **5 s** of the test's clock — a single criterion, kept
+  unsplit by author's decision, quantified so it is falsifiable.
 - **AC2.** Given `PORT=9090`, when the service starts, then `healthz` is
   reachable on `9090`.
 - **AC3.** Given `PORT` is unset, when the service starts, then `healthz` is
@@ -118,11 +127,15 @@ this spec moves no money and stores nothing.
 - **AC5.** Given the Postgres container is stopped, when `GET /healthz`, then
   `200` (I1 — liveness without dependencies).
 - **AC6.** Given the service is running, when it receives `SIGTERM`, then it
-  exits with code `0` (decision B).
-- **AC7.** Given a fresh clone, when `docker compose up -d --build`, then
-  `curl http://localhost:8080/healthz` returns the AC1 body (I2).
+  exits with code `0` within the 10 s shutdown deadline (decision B).
+- **AC7.** Given a fresh clone, when the smoke job runs `docker compose up -d
+  --build` with the stated readiness policy (30 attempts × 2 s interval) and
+  an overall 300 s job timeout, then `curl http://localhost:8080/healthz`
+  returns the AC1 body (I2).
 - **AC8.** Given the repo, when the CI image-pinning check runs, then any
-  `latest` tag in `Dockerfile`/`docker-compose.yml` fails the build (I5).
+  image reference in `Dockerfile`/`docker-compose.yml` without an exact
+  `MAJOR.MINOR.PATCH` tag — including `latest` and floating tags such as
+  `postgres:17` — fails the build (I5).
 
 ## 7. Non-functional
 
@@ -144,14 +157,22 @@ this spec moves no money and stores nothing.
   Makefile + CI; no DB wiring, config module, migrations, Kafka, or Stripe
   (section 2).
 - `GET /healthz` returns JSON `{"status","time"}`; `PORT` is env-provided,
-  optional, default `8080` (section 3).
+  optional, default `8080` (section 3). AC1 stays a single criterion with a
+  quantified **5 s freshness tolerance** (author's call against the
+  reviewer's split proposal).
 - Malformed `PORT` aborts startup (decision A); `SIGTERM`/`SIGINT` shut down
-  gracefully with exit code `0` (decision B) (section 5).
+  gracefully with exit code `0` within a **10 s deadline**; on expiry the
+  remaining connections are closed forcibly, a warning is logged, and the
+  exit code stays `0` (decision B, refined per spec review).
 - CI = lint + unit tests + compose smoke job (AC7) + image-pinning check
   (AC8).
-- The spec fixes the **rule** (exact versions, `latest` forbidden); exact
-  tags are chosen at implementation and named in the implementation plan
+- The spec fixes the **rule**: every image pinned to an exact
+  `MAJOR.MINOR.PATCH` tag; `latest` and floating tags fail CI. Exact tags
+  are chosen at implementation and named in the implementation plan
   (section 9).
+- Compose smoke readiness policy: 30 attempts × 2 s interval, 300 s overall
+  job timeout. HTTP server read/write/idle timeouts are explicitly out of
+  scope (liveness-only service).
 - I3 (fail fast on required env) intentionally has no test in this spec — no
   required variables exist yet; the first one arrives together with its test.
 
@@ -174,11 +195,11 @@ Not filled — completed as a separate step after sections 1–8 pass review.
 
 | Criterion | What to break | Expected failure |
 |-----------|---------------|------------------|
-| AC1 | drop the `time` field / return plain text | `TestHealthzShape` fails |
+| AC1 | drop the `time` field, return plain text, or emit a `time` outside the 5 s tolerance | `TestHealthzShape` fails |
 | AC2 | ignore `PORT`, hardcode `8080` | `TestPortFromEnv` fails |
 | AC3 | require `PORT` (fail when unset) | `TestPortDefault` fails |
 | AC4 | silently fall back to `8080` on parse error | `TestPortFailsFast` fails |
 | AC5 | add a DB ping into the `healthz` handler | `TestHealthzLivenessWithoutDB` fails |
-| AC6 | remove signal handling from `main` | `TestGracefulShutdown` fails |
-| AC7 | break the compose file (remove service / wrong port) | CI compose smoke job fails |
-| AC8 | use `postgres:latest` | CI pinning check fails |
+| AC6 | remove signal handling from `main`, or drop the 10 s deadline and wait indefinitely | `TestGracefulShutdown` fails |
+| AC7 | remove the readiness retry policy (single attempt) from the smoke job | CI compose smoke job fails |
+| AC8 | use `postgres:latest` or a floating `postgres:17` | CI pinning check fails |
