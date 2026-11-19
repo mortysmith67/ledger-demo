@@ -72,7 +72,11 @@ only.
 4. **Verification (section 10), bidirectional mapping with section 6.** Every
    AC has a row; every row maps to an existing AC; every "What to break" cell
    names a concrete line/query/guard to break — a vague cell ("the code",
-   "the logic") cannot anchor a real test and is a finding.
+   "the logic") cannot anchor a real test and is a finding. The test level
+   named in section 10 matches the AC's Given: a Given that requires real
+   infrastructure (containers, network, a running DB) cannot be verified by a
+   unit test, and a Given about in-process state cannot require compose. A
+   level mismatch is a MAJOR finding.
 5. **Coverage of §4 and §5.** Every invariant (section 4) and every edge case
    (section 5) is covered by at least one AC, or carries an explicit
    justification for why it has no test in this spec (e.g. "I3 has no test
@@ -92,7 +96,8 @@ only.
   nor an explicit no-test justification.
 - **MAJOR** — an AC is not testable (no observable outcome, or several
   behaviors in one AC); a section 10 "What to break" cell is vague; section
-  10 rows that map to no AC; an edge case (section 5) has neither a covering
+  10 rows that map to no AC; a section 10 test level does not match the AC's
+  Given (level mismatch); an edge case (section 5) has neither a covering
   AC nor an explicit no-test justification; an operation that can hang has
   no stated timeout or limit.
 - **MINOR** — placeholder remnants in non-mandatory sections, header
