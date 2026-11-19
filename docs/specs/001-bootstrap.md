@@ -1,6 +1,6 @@
 # Spec: Bootstrap
 
-- **Status:** Draft
+- **Status:** Accepted
 - **Author:** Morty Smith
 - **Created:** 2026-11-18
 
