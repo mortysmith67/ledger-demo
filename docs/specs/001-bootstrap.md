@@ -124,8 +124,8 @@ this spec moves no money and stores nothing.
   reachable on `8080`.
 - **AC4.** Given `PORT=not-a-port`, when the service starts, then the process
   exits non-zero and the error names `PORT` (decision A).
-- **AC5.** Given the Postgres container is stopped, when `GET /healthz`, then
-  `200` (I1 — liveness without dependencies).
+- **AC5.** Given the HTTP handler is constructed with no database dependency,
+  when `GET /healthz`, then `200` (I1 — liveness without dependencies).
 - **AC6.** Given the service is running, when it receives `SIGTERM`, then it
   exits with code `0` within the 10 s shutdown deadline (decision B).
 - **AC7.** Given a fresh clone, when the smoke job runs `docker compose up -d
@@ -175,6 +175,9 @@ this spec moves no money and stores nothing.
   scope (liveness-only service).
 - I3 (fail fast on required env) intentionally has no test in this spec — no
   required variables exist yet; the first one arrives together with its test.
+- AC5 is verified at handler level; a compose-level "Postgres stopped" check
+  is deferred to the storage spec, when the service first connects to
+  Postgres.
 
 **Open questions:**
 
