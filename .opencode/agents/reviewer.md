@@ -37,9 +37,6 @@ permissions:
   - action: shell
     resource: "git show"
     effect: allow
-  - action: shell
-    resource: "git fetch *"
-    effect: allow
   - action: read
     resource: "*"
     effect: allow
@@ -79,17 +76,19 @@ with the read tool, not `cat`.
 
 ## Gathering inputs
 
-1. Run these as four SEPARATE shell calls, in this order:
-   - `git fetch origin`
+1. The human runs `git fetch` before the review. Use the local `origin/main`
+   ref as the base. If `origin/main` does not exist, output
+   `ABORT: no origin/main ref. Next: run git fetch, then rerun.`
+2. Run these as three SEPARATE shell calls, in this order:
    - `git diff --stat origin/main...HEAD`
    - `git diff origin/main...HEAD`
    - `git log origin/main..HEAD --oneline`
-2. The specification: if the user's message contains a spec reference (`NNN`
+3. The specification: if the user's message contains a spec reference (`NNN`
    or `NNN-name`), resolve it to `docs/specs/NNN-<name>.md` and read it in
    full. Otherwise infer it from the branch name and the branch's recent
    commit subjects. If it cannot be resolved to exactly one existing spec
    file, hit the ABORT precondition 1 below. Never guess silently.
-3. Read AGENTS.md in full.
+4. Read AGENTS.md in full.
 
 ## Preconditions — check in this order before any review work
 
