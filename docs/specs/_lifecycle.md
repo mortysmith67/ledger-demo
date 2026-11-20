@@ -40,6 +40,23 @@ this file covers only spec status transitions.
 - A previously `Implemented` spec may re-enter review only as a new spec
   (amendments get a new number), never by flipping the old one back.
 
+## Closing a task
+
+```
+/review-code (APPROVE) → status Implemented → /handoff → merge
+```
+
+- `/review-code` returns `APPROVE` on the branch.
+- The human flips the spec's status to `Implemented` (still before the
+  merge).
+- A final `/handoff` records the closing state of the task in
+  `docs/progress/NNN.md`.
+- The PR is merged; per AGENTS.md the branch is then cleaned up
+  (`git fetch --prune; git branch -d <name>`).
+- Any code change after the review — commit, amend, rebase with new
+  content — invalidates the verdict: rerun `/review-code` before closing
+  or merging.
+
 ## Agent rules
 
 Agents read `Status` and react; **no agent ever edits a spec's Status**.
