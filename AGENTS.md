@@ -112,6 +112,8 @@ Guidance for AI coding agents working in this repository.
 - Before pushing to a branch, check its PR is still open (`gh pr list --head <branch>`): commits pushed to an already-merged branch never reach `main` — re-apply them on a fresh branch from synced `main`.
 - GitHub auto-deletes merged branches. After a merge: `git fetch --prune`, then `git branch -d <name>` locally. If `-d` fails, the branch has unmerged work — investigate instead of forcing.
 - One task = one branch = one PR. Small commits, each builds and passes tests.
+- Current task state lives in `docs/progress/NNN.md`: written by `/handoff`
+  (full rewrite each time), read by `/resume` (read-only check).
 - Commit messages: Conventional Commits (`feat:`, `fix:`, `test:`, `refactor:`, `chore:`, `docs:`).
 - Never rewrite published history: no `git push --force`, no `git reset --hard` on shared branches.
 - Commit and/or push only on the human's explicit command, never automatically.
@@ -149,4 +151,4 @@ in the spec first.
 
 - Only stable project facts: architecture, commands, conventions, rules.
 - Never add machine-specific state (installed tools, local paths, OS, "not set up yet").
-- Keep it under 150 lines; if a section grows, move it to docs/ and link it.
+- Keep it under 160 lines; if a section grows, move it to docs/ and link it.
