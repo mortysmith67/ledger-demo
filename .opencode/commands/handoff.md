@@ -1,6 +1,6 @@
 ---
 description: Collect current task state into docs/progress/NNN.md (full rewrite)
-agent: handsoff
+agent: handoff
 ---
 
 Perform a HANDOFF for the current branch's spec.

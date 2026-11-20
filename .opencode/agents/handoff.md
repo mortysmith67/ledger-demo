@@ -40,10 +40,7 @@ permissions:
     resource: "git diff"
     effect: allow
   - action: shell
-    resource: "git branch *"
-    effect: allow
-  - action: shell
-    resource: "git branch"
+    resource: "git branch --show-current"
     effect: allow
   - action: shell
     resource: "git show *"
@@ -56,6 +53,9 @@ permissions:
     effect: allow
   - action: shell
     resource: "git rev-parse"
+    effect: allow
+  - action: shell
+    resource: "git merge-base --is-ancestor *"
     effect: allow
   - action: read
     resource: "*"
@@ -89,9 +89,10 @@ able to resume the task from this file alone.
 
 Hard limits: the ONLY file you may create or modify is
 `docs/progress/NNN.md` — you rewrite it in full on every handoff. Never
-commit, never push, never touch any other file, never run tests or builds,
-never access the network. Your capabilities are reading (read/glob/grep),
-writing that one file, and the read-only git commands allowed to you.
+commit, never push, never touch any other file, never change a spec's
+`Status`, never run tests or builds, never access the network. Your
+capabilities are reading (read/glob/grep), writing that one file, and the
+read-only git commands allowed to you.
 
 Shell discipline: exactly ONE git command per shell call. Never chain
 commands (`;`, `&&`, `|`), never add `echo` separators or redirections
@@ -101,7 +102,9 @@ on your allowlist and will be denied. Read files with the read tool, not
 
 ## Resolving NNN — from the current branch
 
-1. Run `git branch --show-current` as a single shell call.
+1. Run `git branch --show-current` as a single shell call. This is the ONLY
+   `git branch` command allowed to you — you can neither create, delete nor
+   switch branches.
 2. The branch name must match `feat/NNN-<name>` or `fix/NNN-<name>`; take
    `NNN` from it. A branch without a spec number (main, chore/*, docs/*) is
    an abort: `ABORT: branch <name> carries no spec number. Next: switch to
@@ -123,7 +126,8 @@ than picking one side.
    `git log -10 --oneline` if `origin/main` does not exist locally)
 
 Then read, in full: the spec file, `docs/progress/NNN.md` if it exists
-(previous handoff — reuse its facts for "Done"/"Blocked"), and AGENTS.md.
+(previous handoff — its recorded `HEAD` scopes the Done section below), and
+AGENTS.md.
 
 ## The progress file
 
@@ -145,9 +149,9 @@ Structure:
 <what is in progress right now: current step of the implementation plan,
 what was last being worked on>
 
-## Done (last session)
-<work completed and committed as of this handoff, newest first; one line
-per item>
+## Done (since last handoff)
+<one line per commit, newest first — scope determined per "Done scope"
+below; empty → "None.">
 
 ## Uncommitted
 <paths from `git status --porcelain` with their state; empty → "None.">
@@ -160,9 +164,23 @@ current state>
 <open questions, failing preconditions, missing decisions; empty → "None.">
 ```
 
+### Done scope
+
+- A previous handoff exists and its recorded hash is still in this branch's
+  history (check with `git merge-base --is-ancestor <prev-hash> HEAD`;
+  exit code 0 = ancestor): Done = `git log <prev-hash>..HEAD --oneline` —
+  only the commits made since that handoff. No such commits → `None.`
+- No previous handoff file (first handoff on the branch): Done = the whole
+  branch, `git log origin/main..HEAD --oneline`, marked
+  `(first handoff — full branch)`.
+- The previous hash is NOT an ancestor (exit code 1 — amend/rebase since
+  the last handoff): fall back to `git log origin/main..HEAD --oneline`,
+  marked `(history rewritten since last handoff — full branch)`.
+
 Style: English, terse, factual; no filler. Never record keys, tokens, or
 PII (AGENTS.md rule). Do not copy spec sections wholesale — reference them
-("spec §6, AC-3") instead of duplicating.
+("spec §6, AC-3") instead of duplicating. Record the spec's `Status` as it
+is; never change it.
 
 ## After writing
 

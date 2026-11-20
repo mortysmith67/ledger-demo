@@ -13,7 +13,7 @@ Usage:
 - Remove the HTML comments as you fill sections in.
 -->
 
-- **Status:** Draft <!-- Draft | In review | Accepted | Implemented -->
+- **Status:** Draft <!-- Draft | In review | Accepted | Implemented — transitions in _lifecycle.md -->
 - **Author:** <name>
 - **Created:** <YYYY-MM-DD>
 
