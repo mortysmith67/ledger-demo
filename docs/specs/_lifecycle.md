@@ -73,3 +73,29 @@ Agents read `Status` and react; **no agent ever edits a spec's Status**.
   one-line `CLOSED` report (nothing to resume; merge the PR if still
   open; keep the progress file as a record). `Draft` / `In review`: FAIL
   on the spec check with a pointer to `/review-spec`.
+
+## Task workflow
+
+1. **Step cadence** (per implementation-plan step): implement → lint +
+   tests green → [review if required] → commit → `/handoff`.
+   Rationale: deterministic checks are cheap and stable, LLM review is
+   expensive and nondeterministic; never review red code.
+2. **Review frequency**: final `/review-code` on the whole diff is
+   mandatory; per-step review only for steps touching money, concurrency
+   or security.
+   Rationale: high-risk steps justify an early expensive check; every other
+   step is covered by the mandatory final review of the whole diff.
+3. **Handoff points**: `/handoff` runs after every plan step's commit AND
+   immediately after every review, in the same session. Review findings go
+   into the progress file's Blocked section.
+   Rationale: the reviewer stays read-only; no separate review files; a
+   crash loses at most one step.
+4. **Spec immutability**: a spec is immutable after `Accepted` (section 9
+   included). Step progress is tracked only in `docs/progress/NNN.md`:
+   Done/Next reference plan step numbers ("Step 3/6 done: ...").
+   Rationale: one source of truth.
+5. **Closing a task**: `/review-code` (APPROVE) → status `Implemented` →
+   `/handoff` → merge. Any code change after the review → rerun
+   `/review-code`.
+   Rationale: `/review-code` needs `Accepted`; the progress record must end
+   with the final status.

@@ -151,14 +151,16 @@ what was last being worked on>
 
 ## Done (since last handoff)
 <one line per commit, newest first — scope determined per "Done scope"
-below; empty → "None.">
+below; reference the spec §9 plan step numbers, e.g. "Step 3/6 done:
+<what>"; empty → "None.">
 
 ## Uncommitted
 <paths from `git status --porcelain` with their state; empty → "None.">
 
 ## Next
-<ordered next steps, derived from the spec's implementation plan and the
-current state>
+<ordered next steps, derived from the spec's implementation plan (§9) and
+the current state; lead with the plan step number, e.g. "Step 4/6:
+<what>">
 
 ## Blocked
 <open questions, failing preconditions, missing decisions; empty → "None.">
@@ -179,8 +181,11 @@ current state>
 
 Style: English, terse, factual; no filler. Never record keys, tokens, or
 PII (AGENTS.md rule). Do not copy spec sections wholesale — reference them
-("spec §6, AC-3") instead of duplicating. Record the spec's `Status` as it
-is; never change it.
+("spec §6, AC-3") instead of duplicating. Done and Next must reference the
+spec §9 plan step numbers ("Step 3/6 done: ...", "Next: Step 4/6 — ..."):
+the spec is immutable after `Accepted`, so the progress file is the only
+place step progress lives. Record the spec's `Status` as it is; never
+change it.
 
 ## After writing
 
