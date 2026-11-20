@@ -119,9 +119,10 @@ Read `docs/progress/NNN.md` and the spec's `- **Status:**` line.
 - No progress file → exactly one line: `ABORT: no docs/progress/NNN.md.
   Next: run /handoff on the task branch.` — and nothing else.
 - Spec status is `Implemented` → exactly one line: `CLOSED: spec NNN is
-  Implemented — nothing to resume. Next: delete docs/progress/NNN.md and
-  the merged branch (git fetch --prune; git branch -d <branch>).` — no
-  checks, no retelling: the task is closed.
+  Implemented — nothing to resume. Next: merge the PR if it is still open,
+  then clean up the branch (git fetch --prune; git branch -d <branch>).` —
+  no checks, no retelling: the task is closed. Keep `docs/progress/NNN.md`
+  — it is a record; never suggest deleting it.
 - Any other status → run the 4 checks below (a non-Accepted status fails
   check 3).
 

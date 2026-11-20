@@ -13,7 +13,7 @@ this file covers only spec status transitions.
 | `Draft` | Created by `/spec`; sections 1–8 interviewed, not yet reviewed. |
 | `In review` | Submitted to `/review-spec`; review in progress. Optional stage — a confident Draft may go straight to `Accepted`. |
 | `Accepted` | Spec review passed. Implementation may start on a `feat/NNN-*` branch. |
-| `Implemented` | All acceptance criteria verified and the PR is merged. The task is closed. |
+| `Implemented` | All acceptance criteria verified and the PR is ready; the task is done. Set by the human **before** the merge. |
 
 ## Transitions
 
@@ -23,13 +23,18 @@ this file covers only spec status transitions.
                  ▼
               Draft ──(human)──► In review ──(human)──► Accepted ──(human)──► Implemented
                  ▲                                                  ▲              │
-                 └────────────── amendments loop ───────────────────┘      PR merged ┘
+                 └────────────── amendments loop ───────────────────┘            PR merge
 ```
 
 - `Draft` is set once, by `/spec` when the file is created.
 - Every later transition (`In review`, `Accepted`, `Implemented`) is made
   **by the human only**, by editing the status line. The `/review-spec`
   verdict informs the `Accepted` decision, but the human flips the line.
+- `Implemented` is set when the PR is ready and the task is done —
+  **before merging it**, while the work is still on its branch. Merging is
+  a git act, not a status change.
+- `docs/progress/NNN.md` is a record: after a task is `Implemented` it is
+  kept, never deleted. No agent may suggest deleting it.
 - Abandoned specs keep `Draft` or are deleted; no other statuses exist.
   Never invent a fifth value.
 - A previously `Implemented` spec may re-enter review only as a new spec
@@ -48,6 +53,6 @@ Agents read `Status` and react; **no agent ever edits a spec's Status**.
 - **`/handoff`** — records the current status verbatim in the progress
   file; never changes it.
 - **`/resume`** — `Accepted`: normal resumption check. `Implemented`:
-  one-line `CLOSED` report (nothing to resume; delete the progress file
-  and the merged branch). `Draft` / `In review`: FAIL on the spec check
-  with a pointer to `/review-spec`.
+  one-line `CLOSED` report (nothing to resume; merge the PR if still
+  open; keep the progress file as a record). `Draft` / `In review`: FAIL
+  on the spec check with a pointer to `/review-spec`.
