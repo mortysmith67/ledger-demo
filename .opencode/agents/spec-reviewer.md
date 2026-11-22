@@ -95,7 +95,7 @@ command only passes `NNN` and carries no mode:
    N/A, but an N/A must be stated explicitly — a silently empty section is a
    finding.
 2. **Header sanity.** `Status`, `Author`, `Created` present and plausible
-   (`Status` is one of Draft | In review | Accepted | Implemented).
+   (`Status` is one of Draft | In review | Accepted | Ready | Implemented).
 3. **Acceptance criteria (section 6).** Every AC is Given/When/Then with an
    observable outcome; one AC maps to one test; criteria bundling several
    behaviors must be split (template rule).
