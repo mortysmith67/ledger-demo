@@ -5,7 +5,9 @@ Usage:
 - Copy this file to `docs/specs/NNN-short-name.md` (sequential number, kebab-case).
   Do not edit `_template.md` when writing a spec; edit your copy.
 - The human decides sections 1–8 (the agent may draft from the human's
-  answers). The agent fills section 9 only after sections 1–8 pass review.
+  answers). Section 9 is written later by the planner (`/plan-spec`), only
+  after sections 1–8 pass review and the status is `Accepted`; `/review-spec`
+  (plan mode) reviews it, and the human then sets `Ready`.
   Section 10 is written with section 6 and drives "are these tests real?".
 - If the spec exceeds ~2 pages, split the task.
 - AGENTS.md is the single source of truth for project rules; this template
@@ -13,7 +15,7 @@ Usage:
 - Remove the HTML comments as you fill sections in.
 -->
 
-- **Status:** Draft <!-- Draft | In review | Accepted | Implemented — transitions in _lifecycle.md -->
+- **Status:** Draft <!-- Draft | In review | Accepted | Ready | Implemented — transitions in _lifecycle.md -->
 - **Author:** <name>
 - **Created:** <YYYY-MM-DD>
 
@@ -111,13 +113,17 @@ implementation starts; propose options with trade-offs -->
 
 ## 9. Implementation plan
 
-<!-- Filled by the agent AFTER the human reviews and approves sections 1–8.
-Ordered steps, each shippable with a diff of ≤150 lines: migrations first,
-then `internal/ledger` (domain compiles with fakes only, no adapter
-imports), then `internal/storage`, then adapters. Each step states which
-acceptance criteria it makes pass. -->
+<!-- Written by the planner agent via `/plan-spec` — only while the status
+is `Accepted` (sections 1–8 approved); after `/review-spec` (plan mode)
+approves the plan, the human sets `Ready`. Format: a numbered list, one
+entry per step, "Step N/M: <title>" — NO checkboxes. Each step states:
+- which acceptance criteria it closes (by ID);
+- which tests it adds (matching the section 10 names);
+- the estimated diff in lines (≤150, build and tests green after the step);
+- a review flag per the review-frequency rule in `_lifecycle.md`:
+  "Review: required (<reason>)" or "Review: not required". -->
 
-1. [ ] <Step> — makes AC… pass (diff ≈ N lines).
+1. **Step 1/M: <title>** — closes AC…; adds tests: <section 10 test names>; diff ≈ N lines. Review: required (<reason>) | not required.
 
 ## 10. Verification
 

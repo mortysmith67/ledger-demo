@@ -69,6 +69,6 @@ Also:
 2. Create or modify only `docs/specs/NNN-<name>.md` file **only if the human explicitly
    wrote the trigger — "write it"**. Discussion or edits of the
    draft are not consent. Touch no other file.
-3. Do not fill in section 9 (Implementation plan). It is
-   filled in a separate step after the human reviews and approves sections
-   1–8.
+3. Do not fill in section 9 (Implementation plan). It is written later by
+   the planner agent via `/plan-spec`, after sections 1–8 pass review and
+   the human sets the status to `Accepted`.
