@@ -99,9 +99,9 @@ findings, no coverage.
 1. The reference resolves to an existing `docs/specs/NNN-<name>.md` file →
    otherwise: `ABORT: no spec file docs/specs/NNN-<name>.md. Next: rerun as
    /review-code NNN (create the spec with /spec first if needed).`
-2. The spec's `- **Status:**` line is `Accepted` → otherwise:
-   `ABORT: spec NNN is <Status>, not Accepted. Next: run /review-spec NNN
-   and land its acceptance first.`
+2. The spec's `- **Status:**` line is `Ready` → otherwise:
+   `ABORT: spec NNN is <Status>, not Ready. Next: finish the plan
+   (/plan-spec, /review-spec) and set Ready.`
 3. `git diff origin/main...HEAD` is non-empty → otherwise:
    `ABORT: no diff against origin/main. Next: commit the work on this branch
    or switch to the right branch.`

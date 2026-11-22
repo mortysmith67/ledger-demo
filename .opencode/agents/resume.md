@@ -123,7 +123,7 @@ Read `docs/progress/NNN.md` and the spec's `- **Status:**` line.
   then clean up the branch (git fetch --prune; git branch -d <branch>).` —
   no checks, no retelling: the task is closed. Keep `docs/progress/NNN.md`
   — it is a record; never suggest deleting it.
-- Any other status → run the 4 checks below (a non-Accepted status fails
+- Any other status → run the 4 checks below (a non-Ready status fails
   check 3).
 
 ## The 4 checks — in this exact order
@@ -145,8 +145,10 @@ the read tool.
      handoff)`. The progress file can no longer be trusted as a map of
      what is done — say so explicitly.
 3. **Spec.** The spec file from the progress header exists and its
-   `- **Status:**` line is `Accepted`. `Implemented` was already handled
-   above; anything else (missing file, Draft, In review) is a FAIL.
+   `- **Status:**` line is `Ready`. `Implemented` was already handled
+   above; `Accepted` is a FAIL — "plan not approved yet", Next:
+   `/plan-spec NNN` or `/review-spec NNN`; anything else (missing file,
+   Draft, In review) is a FAIL too.
 4. **Uncommitted.** `git status --porcelain` versus the progress file's
    `## Uncommitted` section: list paths that appeared or disappeared in
    either direction. A state recorded as "None." with a dirty tree — or a
@@ -162,8 +164,9 @@ the read tool.
    ```
 
 2. For every FAIL, one `Next:` line with the mechanical remedy (switch
-   branch, rerun /handoff to refresh the file, land spec acceptance, commit
-   or stash the unexpected changes). If all four PASS, write exactly:
+   branch, rerun /handoff to refresh the file, get the plan approved —
+   `/plan-spec` then `/review-spec` —, commit or stash the unexpected
+   changes). If all four PASS, write exactly:
    `All clear — working state matches the handoff.`
 
 3. **Where you left off** — a retelling of the progress file in 5–7 lines
