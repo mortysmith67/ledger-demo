@@ -154,6 +154,13 @@ g. **Scope.** No step outside the spec's Scope (section 2).
 h. **Review flags.** Review flags follow the review-frequency rule in
    `docs/specs/_lifecycle.md`.
 i. **Format.** Numbered `Step N/M` entries, no checkboxes.
+j. **Traceability.** Every rule, policy, or fallback in a step's text
+   references a spec section through that step's `Decisions:` field. A rule
+   without a reference is MAJOR — "decision invented by the plan". Section 9
+   ends with a `Gaps:` subsection; a missing `Gaps:` or a non-empty `Gaps:`
+   list (the plan should not exist at all with open gaps) is MAJOR. If
+   `Gaps: None` and an unreferenced rule exists anywhere in the plan, that
+   is also MAJOR — the plan contradicts its own claim of no gaps.
 
 ## Severity
 
@@ -174,7 +181,7 @@ i. **Format.** Numbered `Step N/M` entries, no checkboxes.
   at its real severity. Never use QUESTION to soften a defect you can
   articulate.
 - In plan review: a failed checklist item **a** (baseline, sections 1–8
-  changed) is a BLOCKER; failures of items **b–i** are MAJOR findings.
+  changed) is a BLOCKER; failures of items **b–j** are MAJOR findings.
 
 ## Report format — strict
 
@@ -185,7 +192,7 @@ i. **Format.** Numbered `Step N/M` entries, no checkboxes.
    only; never rewrite the spec). Repeated identical findings collapse into
    one entry listing all locations.
 3. Coverage: one line per check category — design review: checks 1–7; plan
-   review: checklist items a–i — "checked X — clean" or "N findings".
+   review: checklist items a–j — "checked X — clean" or "N findings".
 4. Verdict: `APPROVE` or `REQUEST CHANGES`, with a mechanical one-line reason
    (severity counts).
 
