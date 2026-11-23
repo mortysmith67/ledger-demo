@@ -1,6 +1,6 @@
 # Spec: Bootstrap
 
-- **Status:** Accepted
+- **Status:** Ready
 - **Author:** Morty Smith
 - **Created:** 2026-11-18
 
@@ -195,13 +195,57 @@ this spec moves no money and stores nothing.
 
 ## 9. Implementation plan
 
-<!-- Filled by the agent AFTER the human reviews and approves sections 1–8.
-Ordered steps, each shippable with a diff of ≤150 lines: migrations first,
-then `internal/ledger` (domain compiles with fakes only, no adapter
-imports), then `internal/storage`, then adapters. Each step states which
-acceptance criteria it makes pass. -->
+1. **Step 1/5: `internal/httpapi` — chi router with `GET /healthz`** — closes
+   AC1, AC5; adds tests: `TestHealthzShape`, `TestHealthzLivenessWithoutDB`;
+   diff ≈ 90 lines. The handler takes an injected `*slog.Logger` and has no
+   DB/Kafka parameter at all (I1); body
+   `{"status":"ok","time":<RFC 3339 UTC>}` via
+   `time.Now().UTC().Format(time.RFC3339)`. Review: not required.
 
-Not filled — completed as a separate step after sections 1–8 pass review.
+2. **Step 2/5: `cmd/ledger` — `PORT` resolution and server wiring** — closes
+   AC2, AC3, AC4; adds tests: `TestPortFromEnv`, `TestPortDefault`,
+   `TestPortFailsFast`; diff ≈ 110 lines. Port parsing lives in `cmd/ledger`
+   as an unexported helper — the spec decided there is no config module;
+   unset `PORT` → `8080` (I4), malformed/out-of-range `PORT` → abort with
+   non-zero exit and an error naming `PORT` (I3 pattern, decision A). `main`
+   wires slog JSON, the router from step 1, and `http.Server`. Review: not
+   required.
+
+3. **Step 3/5: `cmd/ledger` — graceful shutdown with a deadline** — closes
+   AC6, AC9, AC10; adds tests: `TestGracefulShutdown`,
+   `TestShutdownDrainsInFlight`, `TestShutdownForcedAfterDeadline`;
+   diff ≈ 130 lines. Server-run logic moves into a `run(...)` function
+   testable from package-`main` tests: injectable shutdown deadline
+   (production default 10 s, tests use ~1 s), injectable signal source,
+   test-only slow handler registered only in tests. `Shutdown(ctx)` with
+   deadline context (never `Close()`); on deadline expiry remaining
+   connections are force-closed, a warning is logged with the `err` field,
+   and exit stays `0` (decision B). Review: not required.
+
+4. **Step 4/5: Docker artifacts + Makefile** — closes no AC directly
+   (prerequisite for AC7/AC8; enforces I5); adds tests: none (no Go
+   behavior); diff ≈ 90 lines. Multi-stage `Dockerfile` (builder
+   `golang:1.25.3-alpine3.22`, runtime `alpine:3.22.1`),
+   `docker-compose.yml` with the ledger service and
+   `postgres:17.6-alpine3.22` (no app→Postgres connection yet), `Makefile`
+   targets `build`, `run`, `test`, `lint`. Image tags named per I5:
+   `golang:1.25.3-alpine3.22`, `alpine:3.22.1`,
+   `postgres:17.6-alpine3.22` — a nonexistent tag fails the compose build
+   loudly, never silently; if a named patch tag is not published at
+   implementation time, substitute the nearest existing exact patch tag and
+   record the substitution in `docs/progress/001.md` (the I5 rule itself
+   does not change). Review: not required.
+
+5. **Step 5/5: GitHub Actions CI** — closes AC7, AC8; adds tests: none
+   (CI-verified criteria per section 10); diff ≈ 130 lines. Workflow with
+   lint + `go test ./...` on push/PR; compose smoke job:
+   `docker compose up -d --build`, readiness 30 attempts × 2 s interval,
+   300 s job timeout, `curl /healthz` checked against the AC1 body;
+   separate image-pinning check job failing on any non-`MAJOR.MINOR.PATCH`
+   tag, `latest`, or floating tags in `Dockerfile`/`docker-compose.yml`.
+   Review: required (security — the pinning job is the enforcement
+   mechanism for I5, a supply-chain security control; a broken check would
+   let unpinned images pass silently).
 
 ## 10. Verification
 
