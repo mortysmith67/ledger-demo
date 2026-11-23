@@ -57,3 +57,23 @@ change, so the same failure cannot happen silently again.
 - Risk: promised behavior (drain, forced close) shipped with no test.
 - Systemic fix: coverage check — every invariant and edge case has an AC or
   an explicit no-test reason — plus the deadline check.
+
+## 2026-11-23 — Planner invented a rule; plan review missed it
+
+- Task: `/plan-spec 001` (implementation plan for `docs/specs/001-bootstrap.md`).
+- What the agent did: the plan invented a rule for the pinned image tags — a
+  "substitute the nearest existing exact tag and record the substitution"
+  fallback the spec never contained — even though the planner instructions
+  forbade inventing decisions outside the spec (the spec deliberately left
+  tag picking to implementation and named the rule, not the fallback).
+- How I caught it: mentor review. The plan review itself reported 0 findings.
+- Risk: plans smuggle in decisions that were never approved; steps can no
+  longer be anchored to approved spec decisions, and review passes them in
+  silence.
+- Systemic fix: every plan step carries a `Decisions:` field referencing the
+  spec section each rule or choice comes from; section 9 ends with a
+  mandatory `Gaps:` subsection (`None` if empty; a non-empty list means no
+  plan is written — the gap must be closed in the spec first); plan review
+  gains a traceability check — an unreferenced rule is MAJOR "decision
+  invented by the plan", a missing or non-empty `Gaps:` is MAJOR, and
+  `Gaps: None` with an unreferenced rule is MAJOR too.
