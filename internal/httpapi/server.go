@@ -7,6 +7,7 @@
 package httpapi
 
 import (
+	"encoding/json"
 	"log/slog"
 	"net/http"
 
@@ -29,6 +30,18 @@ func NewServer(logger *slog.Logger) *Server {
 		panic("httpapi: NewServer requires a non-nil *slog.Logger")
 	}
 	return &Server{logger: logger}
+}
+
+// writeJSON encodes v as JSON with the given HTTP status. It is the single
+// place where response encoding and its error logging happen: the injected
+// logger lives on the Server, so helpers that write responses hang off it.
+func (s *Server) writeJSON(w http.ResponseWriter, status int, v any) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(status)
+
+	if err := json.NewEncoder(w).Encode(v); err != nil {
+		s.logger.Error("writeJSON: encode response", "err", err)
+	}
 }
 
 // Routes returns the chi router with all endpoints registered. Non-GET
