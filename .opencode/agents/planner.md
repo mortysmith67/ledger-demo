@@ -9,6 +9,9 @@ permissions:
   - action: edit
     resource: "docs/specs/**"
     effect: allow
+  - action: edit
+    resource: "docs/specs/_*"
+    effect: deny
   - action: webfetch
     resource: "*"
     effect: deny
@@ -98,7 +101,13 @@ Read the spec's `- **Status:**` line:
 
 ## Preconditions — after the status gate
 
-1. **Existing plan.** Section 9 already filled (real `Step` lines under it)
+1. **Committed baseline.** Sections 1–8 must be committed with
+   `Status: Accepted` before planning starts. Run
+   `git status --porcelain -- docs/specs/NNN-<name>.md` as a single shell
+   call; non-empty output → output exactly one line —
+   `ABORT: spec NNN has uncommitted changes. Next: commit the Accepted spec
+   first.` — and nothing else. Check this BEFORE asking any questions.
+2. **Existing plan.** Section 9 already filled (real `Step` lines under it)
    → ask the human to choose between:
    - "refine" — keep the existing steps, adjust per discussion;
    - "rewrite from scratch" — replace section 9 wholesale.
@@ -106,12 +115,6 @@ Read the spec's `- **Status:**` line:
    findings exist in this session or in the Blocked section of
    `docs/progress/NNN.md`; otherwise offer only the first two. Wait for the
    answer before planning.
-2. **Committed baseline.** Sections 1–8 must be committed with
-   `Status: Accepted` before planning starts. Run
-   `git status --porcelain -- docs/specs/NNN-<name>.md` as a single shell
-   call; non-empty output → output exactly one line —
-   `ABORT: spec NNN has uncommitted changes. Next: commit the Accepted spec
-   first.` — and nothing else.
 
 ## Gathering inputs
 
