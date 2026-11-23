@@ -117,6 +117,19 @@ command only passes `NNN` and carries no mode:
    finding.
 7. **Template conformance.** Structure matches `docs/specs/_template.md`
    (sections 1–10, table shape in section 10).
+8. **Verification mechanism fits the invariant (sections 4 and 10).** Every
+   invariant is tagged with a type (behavioral | data | concurrency |
+   lifecycle | structural | config | security | supply-chain | operational)
+   and every section 10 row names a mechanism. Two findings:
+   - **Mechanism does not fit the type** — e.g. a structural invariant
+     verified by a runtime test, or a data invariant verified only by tests
+     when a DB constraint can enforce it — is MAJOR. An invariant whose only
+     enforcement is review (no mechanism named, or "review" as the
+     mechanism) is the same finding: review alone is never a verification
+     mechanism.
+   - **Redundant test** — a test whose "What to break" mutation is already
+     caught by another listed test, and which catches no mutation of its
+     own — is MAJOR: it gives false confidence, not coverage.
 
 ## Plan review — checklist, in this exact order
 
@@ -141,7 +154,9 @@ a. **Sections 1–8 unchanged.** Any change outside section 9 is a BLOCKER —
    `Accepted` in both the baseline and the working copy. No exemptions. The
    report header states which baseline was used (`origin/main` or `<hash>`).
 b. **Coverage.** Every AC (section 6) is closed by at least one step; every
-   section 10 row is added by some step.
+   section 10 row is added by some step. Each section 10 row is implemented
+   by a step in its stated mechanism (a DB-constraint row needs a migration
+   step, a lint row needs a linter-config step, not a test).
 c. **Step self-containment.** Each step names the ACs it closes and the
    tests it adds.
 d. **Tests with code.** Tests land in the same step as the code they
@@ -170,9 +185,12 @@ j. **Traceability.** Every rule, policy, or fallback in a step's text
 - **MAJOR** — an AC is not testable (no observable outcome, or several
   behaviors in one AC); a section 10 "What to break" cell is vague; section
   10 rows that map to no AC; a section 10 test level does not match the AC's
-  Given (level mismatch); an edge case (section 5) has neither a covering
-  AC nor an explicit no-test justification; an operation that can hang has
-  no stated timeout or limit.
+  Given (level mismatch); a section 10 mechanism does not fit the
+  invariant's type from section 4, or an invariant's only enforcement is
+  review; a test whose mutation is already caught by another listed test
+  and which catches no mutation of its own (redundant test); an edge case
+  (section 5) has neither a covering AC nor an explicit no-test
+  justification; an operation that can hang has no stated timeout or limit.
 - **MINOR** — placeholder remnants in non-mandatory sections, header
   oddities, structural drift from the template.
 - **QUESTION** — only when you genuinely cannot determine whether something
@@ -191,7 +209,7 @@ j. **Traceability.** Every rule, policy, or fallback in a step's text
    `file:line` — what is wrong — why it matters — suggested fix (description
    only; never rewrite the spec). Repeated identical findings collapse into
    one entry listing all locations.
-3. Coverage: one line per check category — design review: checks 1–7; plan
+3. Coverage: one line per check category — design review: checks 1–8; plan
    review: checklist items a–j — "checked X — clean" or "N findings".
 4. Verdict: `APPROVE` or `REQUEST CHANGES`, with a mechanical one-line reason
    (severity counts).

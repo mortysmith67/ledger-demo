@@ -150,6 +150,12 @@ Rules for the plan:
   adapters).
 - **Whole-plan coverage** — every AC and every section 10 row is covered by
   some step; nothing outside the spec's Scope (section 2).
+- **Mechanism fidelity** — a step implements a section 10 row by the
+  mechanism stated there, not a different one: a row whose mechanism is a
+  DB constraint lands as a migration step, a linter row as a linter-config
+  step — never as a test; a test row lands as the named test. A step that
+  substitutes another mechanism for the stated one is a plan defect —
+  fix the step or close the change as a spec amendment, not silently.
 - **Limits** — more than 8 steps, or a step that cannot fit into 150 lines
   → stop and propose splitting the spec instead of forcing the plan.
 - **Gaps:** — section 9 ends with a mandatory `Gaps:` subsection naming

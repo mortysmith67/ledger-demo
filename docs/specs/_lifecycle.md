@@ -50,6 +50,13 @@ this file covers only spec status transitions.
 - A previously `Implemented` spec may re-enter review only as a new spec
   (amendments get a new number), never by flipping the old one back.
 
+## Template and rule changes
+
+- Template and rule changes apply to specs created after the change.
+- Specs in `Ready` or `Implemented` are never retrofitted: they are
+  immutable, and no agent may update them to match a newer template or
+  rule set.
+
 ## Closing a task
 
 ```

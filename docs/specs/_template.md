@@ -70,7 +70,13 @@ this change:
 - new guarantees this change introduces;
 - existing invariants it touches (tightens, relaxes, or reinterprets — e.g.
   the balance-floor scope for a new account kind);
-- which section of AGENTS.md each touched rule points to. -->
+- which section of AGENTS.md each touched rule points to.
+
+Tag every invariant with its type — one of:
+`behavioral | data | concurrency | lifecycle | structural | config |
+security | supply-chain | operational`. Write it inline in the invariant
+header: `- **I1 (structural) — <statement>.**` The type selects which
+verification mechanisms are acceptable for it in section 10. -->
 
 ## 5. Edge cases & failures
 
@@ -132,8 +138,21 @@ for each key acceptance criterion, name the exact line/behavior to break so
 the test fails. If breaking it does not fail a test, the criterion has no
 test. Examples: drop `FOR UPDATE` from the locking query; invert the floor
 condition `balance >= $1`; drop `ON CONFLICT DO NOTHING`; publish to Kafka
-without the outbox row. Pair this with section 6 during review. -->
+without the outbox row. Pair this with section 6 during review.
 
-| Criterion | What to break | Expected failure |
-|-----------|---------------|------------------|
-| AC1 | <line/query/guard to break> | <test name fails> |
+The `Mechanism` column names how that row is enforced — the cheapest
+mechanism that fails deterministically and earliest, in this order:
+1. compiler / type system (signatures, `internal/`);
+2. database constraint (CHECK, UNIQUE, FK) or linter (depguard, gosec);
+3. test (unit, then integration with real dependencies);
+4. CI check (scripts over build artifacts);
+5. monitoring / alerting (operational only).
+Review alone is never a verification mechanism. The mechanism must fit the
+invariant's type from section 4 (e.g. a structural invariant is not verified
+by a runtime test; a data invariant goes behind a DB constraint when one can
+enforce it). A test is listed only when it catches a mutation no other listed
+test catches — duplicated tests give false confidence, not coverage. -->
+
+| Criterion | What to break | Expected failure | Mechanism |
+|-----------|---------------|------------------|-----------|
+| AC1 | <line/query/guard to break> | <test name fails> | <compiler / DB constraint / linter / test / CI check / monitoring> |

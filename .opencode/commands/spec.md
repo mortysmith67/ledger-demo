@@ -49,6 +49,21 @@ What may be skipped:
 - Draft section 10 (Verification) together with section 6: one row per AC
   (what to break → which test must fail). ACs are numbered, one AC = one
   test; if a criterion does not map to a single test, split it.
+- In section 4, every invariant gets a type tag, stated inline in the
+  header (`- **I1 (structural) — …**`): behavioral | data | concurrency |
+  lifecycle | structural | config | security | supply-chain | operational.
+  Ask for the type if the human does not state it — the type decides which
+  mechanisms are acceptable in section 10.
+- For every section 10 row, propose the `Mechanism` yourself: the cheapest
+  mechanism that fails deterministically and earliest, in this order —
+  1. compiler / type system (signatures, `internal/`);
+  2. database constraint (CHECK, UNIQUE, FK) or linter (depguard, gosec);
+  3. test (unit, then integration with real dependencies);
+  4. CI check (scripts over build artifacts);
+  5. monitoring / alerting (operational only).
+  Review alone is never a verification mechanism. The proposal must fit the
+  invariant's type from section 4, and a test is proposed only when it
+  catches a mutation no other listed test catches.
 
 Also:
 

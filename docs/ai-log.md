@@ -77,3 +77,27 @@ change, so the same failure cannot happen silently again.
   gains a traceability check — an unreferenced rule is MAJOR "decision
   invented by the plan", a missing or non-empty `Gaps:` is MAJOR, and
   `Gaps: None` with an unreferenced rule is MAJOR too.
+
+## 2026-11-23 — AC5 test was redundant; invariant I1 had no enforcement
+
+- Task: mutation run over `docs/specs/001-bootstrap.md`.
+- What the agent did: the test for AC5 (`TestHealthzLivenessWithoutDB`)
+  duplicates `TestHealthzShape` — its "what to break" mutation is already
+  caught there, and it catches no mutation of its own. At the same time
+  invariant I1 (liveness is dependency-free) was guarded by nothing but
+  review — review is not a verification mechanism. Both gaps passed the
+  spec review and the plan review.
+- How I caught it: mutation run.
+- Risk: redundant tests give false confidence, not coverage; an untagged
+  invariant has no named enforcement, so nothing fails when it is broken —
+  the hole surfaces only by luck (a mutation run), never in review.
+- Systemic fix: the "Verification mechanism rule". Every invariant
+  (section 4) is tagged with its type: behavioral | data | concurrency |
+  lifecycle | structural | config | security | supply-chain | operational.
+  Section 10 gains a `Mechanism` column: the cheapest mechanism that fails
+  deterministically and earliest — compiler / type system, then DB
+  constraint or linter, then test, then CI check, then monitoring.
+  The `/spec` interview asks for the type and proposes the mechanism; the
+  spec reviewer's decision review checks that the mechanism fits the
+  invariant type, and that a test catches at least one mutation of its own
+  (a duplicated test is MAJOR).
