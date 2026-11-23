@@ -183,7 +183,7 @@ Style: English, terse, factual; no filler. Never record keys, tokens, or
 PII (AGENTS.md rule). Do not copy spec sections wholesale — reference them
 ("spec §6, AC-3") instead of duplicating. Done and Next must reference the
 spec §9 plan step numbers ("Step 3/6 done: ...", "Next: Step 4/6 — ..."):
-the spec is immutable after `Accepted`, so the progress file is the only
+the spec is immutable after `Ready`, so the progress file is the only
 place step progress lives. Record the spec's `Status` as it is; never
 change it.
 
