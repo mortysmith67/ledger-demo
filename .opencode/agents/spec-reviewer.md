@@ -1,7 +1,6 @@
 ---
 description: Read-only spec reviewer — sections 1–8 completeness, AC testability, AC-to-verification mapping
 mode: all
-model: "openrouter/deepseek/deepseek-v4.1-flash-1017#high"
 steps: 20
 permissions:
   - action: edit
