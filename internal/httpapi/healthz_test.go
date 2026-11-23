@@ -61,6 +61,19 @@ func TestHealthzShape(t *testing.T) {
 	}
 }
 
+// TestNewServerRequiresLogger: the server fails loudly at construction
+// when built without a logger — the logger is a required dependency, never
+// optional (a nil logger must panic, not degrade silently).
+func TestNewServerRequiresLogger(t *testing.T) {
+	defer func() {
+		if recover() == nil {
+			t.Fatal("NewServer(nil) did not panic, want panic")
+		}
+	}()
+
+	_ = NewServer(nil)
+}
+
 // TestHealthzLivenessWithoutDB closes AC5 (I1): the handler is constructed
 // with no database dependency and GET /healthz still answers 200.
 func TestHealthzLivenessWithoutDB(t *testing.T) {

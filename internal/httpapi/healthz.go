@@ -24,7 +24,7 @@ func (s *Server) handleHealthz(w http.ResponseWriter, _ *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 
-	if err := json.NewEncoder(w).Encode(resp); err != nil && s.logger != nil {
+	if err := json.NewEncoder(w).Encode(resp); err != nil {
 		s.logger.Error("healthz: encode response", "err", err)
 	}
 }

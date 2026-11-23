@@ -20,8 +20,14 @@ type Server struct {
 	logger *slog.Logger
 }
 
-// NewServer returns a Server with the given injected logger.
+// NewServer returns a Server with the given injected logger. It panics on a
+// nil logger: the logger is a required dependency, and a server without one
+// must fail loudly at construction, never silently at request time
+// (AGENTS.md → fail-fast convention).
 func NewServer(logger *slog.Logger) *Server {
+	if logger == nil {
+		panic("httpapi: NewServer requires a non-nil *slog.Logger")
+	}
 	return &Server{logger: logger}
 }
 
