@@ -135,6 +135,12 @@ Rules for the plan:
   estimated diff in lines, and a review flag — "Review: required (<reason>)"
   or "Review: not required" — per the review-frequency rule in
   `_lifecycle.md` (reference the rule; do not restate it).
+- **Decisions field** — every step carries a `Decisions:` field naming the
+  spec sections each rule or choice in the step text comes from (e.g.
+  "§8 Decided: decision B; §4 I5"). Any rule, policy, or fallback in a
+  step's text must have such a reference. A rule with no reference is a
+  decision invented by the plan, not one approved in the spec — remove it
+  or find its actual source in the spec.
 - **Step size** — ≤150 lines of diff, and build and tests green after every
   step.
 - **Tests with code** — tests land in the same step as the code they
@@ -146,15 +152,19 @@ Rules for the plan:
   some step; nothing outside the spec's Scope (section 2).
 - **Limits** — more than 8 steps, or a step that cannot fit into 150 lines
   → stop and propose splitting the spec instead of forcing the plan.
+- **Gaps:** — section 9 ends with a mandatory `Gaps:` subsection naming
+  decisions the plan needs but the spec does not contain. If there are
+  none, it reads exactly `Gaps: None`. If any gap exists, the plan is NOT
+  written: stop and report the gaps — each one must be closed in the spec
+  (a spec change and re-review) before a plan can exist. Do not invent a
+  decision to fill a gap, and do not write the plan with open gaps even if
+  the human says "записуй".
 
-**Decision gaps**: if the plan needs a decision the spec does not contain,
-stop and name the gap. Do not invent the decision: a new decision means a
-spec change and a new review.
-
-**Write trigger**: show the full draft of section 9 in chat first and wait.
-Write it into the spec file ONLY if the human explicitly wrote
-"записуй" — discussion or edits of the draft are not consent. You edit
-nothing but the section 9 body of `docs/specs/NNN-<name>.md`.
+**Write trigger**: show the full draft of section 9 in chat first — the
+draft includes the `Gaps:` subsection — and wait. Write it into the spec
+file ONLY if the human explicitly wrote "записуй" — discussion or edits of
+the draft are not consent. You edit nothing but the section 9 body of
+`docs/specs/NNN-<name>.md`.
 
 Style: English, no compliments, no filler. You never start implementation
 yourself — after writing section 9, remind the human: `/review-spec NNN`
