@@ -1,7 +1,6 @@
 ---
 description: Read-only code reviewer — checks the branch against its spec and AGENTS.md, reports findings with a verdict
 mode: all
-model: "openrouter/deepseek/deepseek-v4.1-flash-1017#high"
 steps: 40
 permissions:
   - action: edit
