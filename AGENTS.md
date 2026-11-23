@@ -80,6 +80,12 @@ Guidance for AI coding agents working in this repository.
 - Kafka message key = account ID (per-account ordering).
 - Never publish anything not written through the outbox (no dual-writes).
 
+## Constructors
+
+- Constructors validate required dependencies and panic on nil.
+- Never construct structs with dependencies via literals outside their
+  package; always go through the constructor.
+
 ## Errors and logging
 
 - Sentinel errors in `internal/ledger`; wrap with `%w`; HTTP maps them via
